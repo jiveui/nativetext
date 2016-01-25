@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 class NativeTextField extends EditText implements View.OnFocusChangeListener
 {
     private boolean m_eventsEnabled = false;
+    private boolean m_multiline = false;
     private ViewGroup m_parentView;
     
     public NativeTextField(Context context, ViewGroup parentView, int eventDispatcherId)
@@ -53,6 +54,10 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
         {
             config = new Gson().fromJson(jsonConfig, NativeTextFieldConfig.class);
             
+            if (config.multiline != null) {
+                m_multiline = config.multiline;
+            }
+
             if (config.textAlignment != null)
             {
                 config.textAlignmentEnum = NativeTextFieldAlignment.values()[config.textAlignment];
@@ -75,9 +80,10 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
             return;
         }
         
-// TODO: config.fontAsset
-// setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-        
+        try {
+            setTypeface(android.graphics.Typeface.createFromAsset(getContext().getAssets(), config.fontAsset));
+        } catch (java.lang.Exception e) {}
+
         if (config.fontColor != null)
         {
             setTextColor(0xff000000 | config.fontColor);
@@ -103,6 +109,15 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
         if (config.placeholder != null)
         {
             setHint(config.placeholder);
+            setHintTextColor(android.graphics.Color.LTGRAY);
+        }
+
+        if (config.isPassword != null) {
+            if (config.isPassword) {
+                setTransformationMethod(android.text.method.PasswordTransformationMethod.getInstance());
+            } else {
+                setTransformationMethod(null);
+            }
         }
         
         SetTextAlignment(config.textAlignmentEnum);
@@ -276,11 +291,16 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
         {
             return;
         }
-        
+
+        int defaultValue = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL;
+        if (m_multiline) {
+            defaultValue |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        }
+
         switch (keyboardType)
         {
             case Default:
-                setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                setInputType(defaultValue);
                 break;
                 
             case Password:

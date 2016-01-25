@@ -12,10 +12,10 @@ namespace nativetext
         #endif
     }
 
-    void CreateTextField(int eventDispatcherId)
+    void CreateTextField(int eventDispatcherId, bool multiline)
     {
         #ifdef IPHONE
-        iphone::CreateTextField(eventDispatcherId);
+        iphone::CreateTextField(eventDispatcherId, multiline);
         #endif
     }
     
@@ -70,5 +70,12 @@ namespace nativetext
         #ifdef IPHONE
         iphone::ClearFocus(eventDispatcherId);
         #endif
-    }	
+    }
+
+    float GetContentHeight(int eventDispatcherId)
+    {
+        #ifdef IPHONE
+        return iphone::GetContentHeight(eventDispatcherId);
+        #endif
+    }
 }

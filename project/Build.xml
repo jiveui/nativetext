@@ -12,6 +12,9 @@
 		<compilerflag value="-Iinclude"/>
         <compilerflag value="-I../../extensionkit/project/include"/>
         <file name="iphone/NativeTextIPhone.mm"/>
+        <file name="iphone/NativeTextContainerView.mm"/>
+        <file name="iphone/NativeTextFieldView.mm"/>
+        <file name="iphone/NativeTextView.mm"/>
 	</files>
 
 	<set name="SLIBEXT" value=".lib" if="windows"/>

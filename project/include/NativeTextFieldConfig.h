@@ -71,6 +71,8 @@ namespace nativetext
             Option<TextAlignment> textAlignment;
             Option<KeyboardType> keyboardType;
             Option<ReturnKeyType> returnKeyType;
+            Option<bool> isPassword;
+            Option<bool> multiline;
     };
 }
 

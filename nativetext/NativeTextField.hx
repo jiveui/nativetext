@@ -1,9 +1,9 @@
 package nativetext;
+import flash.events.EventDispatcher;
 import flash.display.Sprite;
 import extensionkit.ExtensionKit;
 import haxe.EnumTools;
 import haxe.Json;
-import openfl.events.EventDispatcher;
 
 #if cpp
 import cpp.Lib;
@@ -117,14 +117,24 @@ class NativeTextField extends EventDispatcher
         var intConfig:Dynamic = Reflect.copy(config);
         intConfig.textAlignment = EnumToInt(config.textAlignment);
         intConfig.keyboardType = EnumToInt(config.keyboardType);
-        intConfig.returnKeyType = EnumToInt(config.returnKeyType);        
+        intConfig.returnKeyType = EnumToInt(config.returnKeyType);
         return intConfig;
         #end
+        return null;
     }
     
     inline private function EnumToInt(e:EnumValue) : Null<Int>
     {
         return (null == e ? null : EnumValueTools.getIndex(e));
+    }
+
+    public function GetContentHeight() : Float
+    {
+        #if (android || cpp)
+        return nativetext_get_content_height(this.eventDispatcherId);
+        #else
+        return 0.0;
+        #end
     }
     
     //---------------------------------
@@ -139,19 +149,21 @@ class NativeTextField extends EventDispatcher
     private static var nativetext_is_focused = null;
     private static var nativetext_set_focus = null;
     private static var nativetext_clear_focus = null;
+    private static var nativetext_get_content_height = null;
 
     @:allow(nativetext.NativeText)
     private static function Initialize() : Void
     {
         #if android
-        nativetext_create_text_field = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "CreateTextField", "(ILjava/lang/String;)V");
-        nativetext_configure_text_field = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "ConfigureTextField", "(ILjava/lang/String;)V");
-        nativetext_destroy_text_field = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "DestroyTextField", "(I)V");
-        nativetext_get_text = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "GetText", "(I)Ljava/lang/String;");
-        nativetext_set_text = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "SetText", "(ILjava/lang/String;)V");
-        nativetext_is_focused = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "IsFocused", "(I)Z");
-        nativetext_set_focus = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "SetFocus", "(I)V");
-        nativetext_clear_focus = JNI.createStaticMethod("org.haxe.extension.nativetext.NativeText", "ClearFocus", "(I)V");
+        nativetext_create_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "CreateTextField", "(ILjava/lang/String;)V");
+        nativetext_configure_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureTextField", "(ILjava/lang/String;)V");
+        nativetext_destroy_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "DestroyTextField", "(I)V");
+        nativetext_get_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "GetText", "(I)Ljava/lang/String;");
+        nativetext_set_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "SetText", "(ILjava/lang/String;)V");
+        nativetext_is_focused = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "IsFocused", "(I)Z");
+        nativetext_set_focus = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "SetFocus", "(I)V");
+        nativetext_clear_focus = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ClearFocus", "(I)V");
+        nativetext_get_content_height = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "GetContentHeight", "(I)F");
         #elseif cpp
         nativetext_create_text_field = Lib.load("nativetext", "nativetext_create_text_field", 2);
         nativetext_configure_text_field = Lib.load("nativetext", "nativetext_configure_text_field", 2);
@@ -161,6 +173,7 @@ class NativeTextField extends EventDispatcher
         nativetext_is_focused = Lib.load("nativetext", "nativetext_is_focused", 1);
         nativetext_set_focus = Lib.load("nativetext", "nativetext_set_focus", 1);
         nativetext_clear_focus = Lib.load("nativetext", "nativetext_clear_focus", 1);
+        nativetext_get_content_height = Lib.load("nativetext", "nativetext_get_content_height", 1);
         #end
     }
 }

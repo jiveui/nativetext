@@ -9,6 +9,7 @@ public class NativeTextFieldConfig
     public Float height;
     public Boolean visible;
     public Boolean enabled;
+    public Boolean isPassword;
     public String placeholder;
     public String fontAsset;
     public Integer fontSize;
@@ -19,4 +20,5 @@ public class NativeTextFieldConfig
     public NativeTextFieldKeyboardType keyboardTypeEnum;
     public Integer returnKeyType;
     public NativeTextFieldReturnKeyType returnKeyTypeEnum;
+    public Boolean multiline;
 }

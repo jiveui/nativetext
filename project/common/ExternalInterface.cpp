@@ -30,6 +30,8 @@ static int _id_fontColor;
 static int _id_textAlignment;
 static int _id_keyboardType;
 static int _id_returnKeyType;
+static int _id_isPassword;
+static int _id_multiline;
 
 
 
@@ -53,7 +55,9 @@ static void InitIds()
     _id_fontColor = val_id("fontColor");
     _id_textAlignment = val_id("textAlignment");
     _id_keyboardType = val_id("keyboardType");
-    _id_returnKeyType = val_id("returnKeyType");    
+    _id_returnKeyType = val_id("returnKeyType");
+    _id_isPassword = val_id("isPassword");
+    _id_multiline = val_id("multiline");
 }
 
 
@@ -82,6 +86,8 @@ static void DoConfigureTextField(int eventDispatcherId, value config)
     field = val_field(config, _id_textAlignment);   textFieldConfig.textAlignment.Set((NativeTextFieldConfig::TextAlignment)val_int(field), val_is_int(field));
     field = val_field(config, _id_keyboardType);    textFieldConfig.keyboardType.Set((NativeTextFieldConfig::KeyboardType)val_int(field), val_is_int(field));
     field = val_field(config, _id_returnKeyType);   textFieldConfig.returnKeyType.Set((NativeTextFieldConfig::ReturnKeyType)val_int(field), val_is_int(field));
+    field = val_field(config, _id_isPassword);      textFieldConfig.isPassword.Set(val_bool(field), val_is_bool(field));
+    field = val_field(config, _id_multiline);       textFieldConfig.multiline.Set(val_bool(field), val_is_bool(field));
 
     ConfigureTextField(eventDispatcherId, textFieldConfig);
 }
@@ -90,7 +96,17 @@ static void DoConfigureTextField(int eventDispatcherId, value config)
 static void nativetext_create_text_field(value eventDispatcherId, value config)
 {
     int id = val_int(eventDispatcherId);
-    CreateTextField(id);
+    bool multiline = false;
+    if (!val_is_null(config))
+    {
+        InitIds();
+        value field = val_field(config, _id_multiline);
+        if (val_is_bool(field) && val_bool(field)) {
+            multiline = true;
+        }
+    }
+
+    CreateTextField(id, multiline);
     DoConfigureTextField(id, config);
 }
 DEFINE_PRIM(nativetext_create_text_field, 2);
@@ -153,6 +169,12 @@ static void nativetext_clear_focus(value eventDispatcherId)
 }
 DEFINE_PRIM(nativetext_clear_focus, 1);
 
+
+static value nativetext_get_content_height(value eventDispatcherId)
+{
+    return alloc_float(GetContentHeight(val_int(eventDispatcherId)));
+}
+DEFINE_PRIM(nativetext_get_content_height, 1);
 
 extern "C" void nativetext_main()
 {

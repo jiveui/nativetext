@@ -7,7 +7,7 @@
 namespace nativetext
 {
     void Initialize();
-    void CreateTextField(int eventDispatcherId);
+    void CreateTextField(int eventDispatcherId, bool multiline);
     void DestroyTextField(int eventDispatcherId);
     void ConfigureTextField(int eventDispatcherId, const NativeTextFieldConfig& config);
     const char* GetText(int eventDispatcherId);
@@ -15,6 +15,7 @@ namespace nativetext
     bool IsFocused(int eventDispatcherId);
     void SetFocus(int eventDispatcherId);
     void ClearFocus(int eventDispatcherId);
+    float GetContentHeight(int eventDispatcherId);
 }
 
 

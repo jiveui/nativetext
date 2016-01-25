@@ -8,6 +8,7 @@ typedef NativeTextFieldConfig = {
     ?height : Float,
     ?visible : Bool,
     ?enabled : Bool,
+    ?isPassword : Bool,
     ?placeholder : String,
     ?fontAsset : String,
     ?fontSize : Int,
@@ -15,4 +16,5 @@ typedef NativeTextFieldConfig = {
     ?textAlignment : NativeTextFieldAlignment,
     ?keyboardType : NativeTextFieldKeyboardType,
     ?returnKeyType : NativeTextFieldReturnKeyType,
+    ?multiline: Bool // It works only during creating
 };

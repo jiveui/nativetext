@@ -31,10 +31,10 @@ public class NativeText extends org.haxe.extension.Extension
 	@Override
 	public void onResume()
 	{
-	    if (s_textFieldView != null)
+        if (s_textFieldView != null)
 	    {
 	        ((ViewGroup)s_textFieldView.getParent()).removeView(s_textFieldView);
-	        mainActivity.addContentView(s_textFieldView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));	        
+	        mainActivity.addContentView(s_textFieldView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 	    }
 	}
 	
@@ -71,6 +71,12 @@ public class NativeText extends org.haxe.extension.Extension
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                if (s_textFieldView == null) {
+                    Trace.Error("NativeText: text container is not initialized.");
+                    return;
+                }
+
                 if (NativeText.FindTextFieldById(eventDispatcherId, true) != null)
                 {
                     Trace.Error("NativeText: Trying to create a new EditText with a previously used ID (" + eventDispatcherId + "), skipping.");
@@ -181,15 +187,30 @@ public class NativeText extends org.haxe.extension.Extension
                 }
             }
         });
-    }    
-    
-	private static NativeTextField FindTextFieldById(final int eventDispatcherId)
+    }
+
+    public static float GetContentHeight(final int eventDispatcherId)
+    {
+        NativeTextField textField = NativeText.FindTextFieldById(eventDispatcherId);
+        if (textField != null)
+        {
+            return textField.getLineCount() * (textField.getLineHeight() + textField.getLineSpacingExtra());
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    private static NativeTextField FindTextFieldById(final int eventDispatcherId)
 	{
 	    return FindTextFieldById(eventDispatcherId, false);
 	}
 	
     private static NativeTextField FindTextFieldById(final int eventDispatcherId, final boolean suppressWarning)
     {
+        if (null == s_textFieldView) return null;
+
         NativeTextField textField = (NativeTextField) s_textFieldView.findViewById(eventDispatcherId);
         
         if (!suppressWarning && null == textField)
