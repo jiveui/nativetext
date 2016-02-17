@@ -18,6 +18,9 @@ import openfl.utils.JNI;
 
 class NativeTextField extends EventDispatcher
 {
+
+    private static var configurationBatch: NativeTextFieldConfigBatch;
+
     // Can use this for width/height in NativeTextFieldConfig
     public static inline var AUTOSIZE = -1.0;
     
@@ -53,9 +56,21 @@ class NativeTextField extends EventDispatcher
     
     public function Configure(config:NativeTextFieldConfig)
     {
+        #if android
+        if (null == configurationBatch) configurationBatch = [];
+        configurationBatch.push({eventId: eventDispatcherId, config: config});
+        #else
         EnsureNotDestroyed();
         nativetext_configure_text_field(this.eventDispatcherId, PrepareConfigForNativeCall(config));
+        #end
     }
+
+    #if android
+    public static function processConfigurationBatch() {
+        if (null == configurationBatch) return;
+        nativetext_configure_batch(Json.stringify(configurationBatch));
+    }
+    #end
 
     /**
      * Note: String will be UTF8 encoded. See haxe.Utf8 if using more than ASCII.
@@ -136,13 +151,14 @@ class NativeTextField extends EventDispatcher
         return 0.0;
         #end
     }
-    
+
     //---------------------------------
     // Native/JNI Functions
     //---------------------------------
     
     private static var nativetext_create_text_field = null;
     private static var nativetext_configure_text_field = null;
+    private static var nativetext_configure_batch = null;
     private static var nativetext_destroy_text_field = null;
     private static var nativetext_get_text = null;
     private static var nativetext_set_text = null;
@@ -157,6 +173,7 @@ class NativeTextField extends EventDispatcher
         #if android
         nativetext_create_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "CreateTextField", "(ILjava/lang/String;)V");
         nativetext_configure_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureTextField", "(ILjava/lang/String;)V");
+        //nativetext_configure_batch = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureBatch", "(Ljava/lang/String;)V");
         nativetext_destroy_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "DestroyTextField", "(I)V");
         nativetext_get_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "GetText", "(I)Ljava/lang/String;");
         nativetext_set_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "SetText", "(ILjava/lang/String;)V");
