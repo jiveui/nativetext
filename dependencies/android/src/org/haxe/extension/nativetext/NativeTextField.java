@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.view.KeyEvent;
 
 
 class NativeTextField extends EditText implements View.OnFocusChangeListener
@@ -206,6 +207,15 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
                 new Object[] {
                     eventType
                 });
+    }
+
+    @Override
+    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            onFocusChange(null, false);
+            return false;
+        }
+        return super.dispatchKeyEvent(event);
     }
     
     private void ShowKeyboard(boolean show)
