@@ -1,9 +1,13 @@
 package nativetext;
+import haxe.ds.IntMap;
+import flash.events.MouseEvent;
+import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.display.Sprite;
 import extensionkit.ExtensionKit;
 import haxe.EnumTools;
 import haxe.Json;
+import haxe.Timer;
 
 #if cpp
 import cpp.Lib;
@@ -57,8 +61,15 @@ class NativeTextField extends EventDispatcher
     public function Configure(config:NativeTextFieldConfig)
     {
         #if android
-        if (null == configurationBatch) configurationBatch = [];
-        configurationBatch.push({eventId: eventDispatcherId, config: config});
+        if (null == configurationBatch) configurationBatch = new NativeTextFieldConfigBatch();
+        if (!configurationBatch.exists(eventDispatcherId)) {
+            configurationBatch.set(eventDispatcherId, {eventId: eventDispatcherId, config: config});
+        } else {
+            var c = configurationBatch.get(eventDispatcherId);
+            for (f in Reflect.fields(config)) {
+                Reflect.setField(c.config, f, Reflect.field(config, f));
+            }
+        }
         #else
         EnsureNotDestroyed();
         nativetext_configure_text_field(this.eventDispatcherId, PrepareConfigForNativeCall(config));
@@ -68,7 +79,8 @@ class NativeTextField extends EventDispatcher
     #if android
     public static function processConfigurationBatch() {
         if (null == configurationBatch) return;
-        nativetext_configure_batch(Json.stringify(configurationBatch));
+        nativetext_configure_batch(Json.stringify(Lambda.array(configurationBatch)));
+        configurationBatch = new NativeTextFieldConfigBatch();
     }
     #end
 
@@ -173,7 +185,7 @@ class NativeTextField extends EventDispatcher
         #if android
         nativetext_create_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "CreateTextField", "(ILjava/lang/String;)V");
         nativetext_configure_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureTextField", "(ILjava/lang/String;)V");
-        //nativetext_configure_batch = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureBatch", "(Ljava/lang/String;)V");
+        nativetext_configure_batch = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ConfigureBatch", "(Ljava/lang/String;)V");
         nativetext_destroy_text_field = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "DestroyTextField", "(I)V");
         nativetext_get_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "GetText", "(I)Ljava/lang/String;");
         nativetext_set_text = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "SetText", "(ILjava/lang/String;)V");
@@ -181,6 +193,9 @@ class NativeTextField extends EventDispatcher
         nativetext_set_focus = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "SetFocus", "(I)V");
         nativetext_clear_focus = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "ClearFocus", "(I)V");
         nativetext_get_content_height = JNI.createStaticMethod("org/haxe/extension/nativetext/NativeText", "GetContentHeight", "(I)F");
+
+        flash.Lib.current.stage.addEventListener(Event.ENTER_FRAME, function(e) { processConfigurationBatch(); });
+
         #elseif cpp
         nativetext_create_text_field = Lib.load("nativetext", "nativetext_create_text_field", 2);
         nativetext_configure_text_field = Lib.load("nativetext", "nativetext_configure_text_field", 2);
@@ -192,5 +207,6 @@ class NativeTextField extends EventDispatcher
         nativetext_clear_focus = Lib.load("nativetext", "nativetext_clear_focus", 1);
         nativetext_get_content_height = Lib.load("nativetext", "nativetext_get_content_height", 1);
         #end
+
     }
 }

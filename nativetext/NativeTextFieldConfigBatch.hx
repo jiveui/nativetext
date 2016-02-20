@@ -1,3 +1,5 @@
 package nativetext;
 
-typedef NativeTextFieldConfigBatch = Array<NativeTextFieldConfigCommand>;
+import haxe.ds.IntMap;
+
+typedef NativeTextFieldConfigBatch = IntMap<NativeTextFieldConfigCommand>;

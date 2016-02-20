@@ -4,6 +4,8 @@ import org.haxe.extension.extensionkit.HaxeCallback;
 import org.haxe.extension.extensionkit.Trace;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.util.*;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -120,6 +122,33 @@ public class NativeText extends org.haxe.extension.Extension
             }
         });
 	}
+
+    public static void ConfigureBatch(final String jsonConfig) {
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    List<NativeTextFieldConfigCommand> commands = new Gson().fromJson(jsonConfig, new TypeToken<List<NativeTextFieldConfigCommand>>() {}.getType());
+
+                    for (NativeTextFieldConfigCommand c : commands) {
+                        NativeTextField textField = NativeText.FindTextFieldById(c.eventId);
+                        if (textField != null)
+                        {
+                            textField.Configure(c.config);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Trace.Error("Invalid JSON recieved in NativeText.ConfigureTextField()");
+                    Trace.Error(e.toString());
+                    return;
+                }
+            }
+        });
+    }
 
 	public static String GetText(final int eventDispatcherId)
 	{	    

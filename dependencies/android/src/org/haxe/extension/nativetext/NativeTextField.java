@@ -23,8 +23,7 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
     private boolean m_multiline = false;
     private ViewGroup m_parentView;
     
-    public NativeTextField(Context context, ViewGroup parentView, int eventDispatcherId)
-    {
+    public NativeTextField(Context context, ViewGroup parentView, int eventDispatcherId) {
         super(context);
         
         m_parentView = parentView;
@@ -46,32 +45,10 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
         m_eventsEnabled = true;
     }
 
-    public void ConfigureFromJSON(final String jsonConfig)
-    {
-        final NativeTextFieldConfig config; 
-        
-        try 
+    public void ConfigureFromJSON(final String jsonConfig) {
+        try
         {
-            config = new Gson().fromJson(jsonConfig, NativeTextFieldConfig.class);
-            
-            if (config.multiline != null) {
-                m_multiline = config.multiline;
-            }
-
-            if (config.textAlignment != null)
-            {
-                config.textAlignmentEnum = NativeTextFieldAlignment.values()[config.textAlignment];
-            }
-            
-            if (config.keyboardType != null)
-            {
-                config.keyboardTypeEnum = NativeTextFieldKeyboardType.values()[config.keyboardType];
-            }
-            
-            if (config.returnKeyType != null)
-            {
-                config.returnKeyTypeEnum = NativeTextFieldReturnKeyType.values()[config.returnKeyType];
-            }            
+            Configure(new Gson().fromJson(jsonConfig, NativeTextFieldConfig.class));
         }
         catch (Exception e)
         {
@@ -79,7 +56,29 @@ class NativeTextField extends EditText implements View.OnFocusChangeListener
             Trace.Error(e.toString());
             return;
         }
-        
+    }
+
+    public void Configure(final NativeTextFieldConfig config) {
+
+        if (config.multiline != null) {
+            m_multiline = config.multiline;
+        }
+
+        if (config.textAlignment != null)
+        {
+            config.textAlignmentEnum = NativeTextFieldAlignment.values()[config.textAlignment];
+        }
+
+        if (config.keyboardType != null)
+        {
+            config.keyboardTypeEnum = NativeTextFieldKeyboardType.values()[config.keyboardType];
+        }
+
+        if (config.returnKeyType != null)
+        {
+            config.returnKeyTypeEnum = NativeTextFieldReturnKeyType.values()[config.returnKeyType];
+        }
+
         try {
             setTypeface(android.graphics.Typeface.createFromAsset(getContext().getAssets(), config.fontAsset));
         } catch (java.lang.Exception e) {}
