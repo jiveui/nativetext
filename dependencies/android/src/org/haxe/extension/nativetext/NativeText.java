@@ -37,6 +37,15 @@ public class NativeText extends org.haxe.extension.Extension
 	    {
 	        ((ViewGroup)s_textFieldView.getParent()).removeView(s_textFieldView);
 	        mainActivity.addContentView(s_textFieldView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            // Make sure native text fields don't have focus after click off
+            mainView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View arg0, MotionEvent arg1) {
+                    s_textFieldView.clearFocus();
+                    return false;
+                }
+            });
 	    }
 	}
 	
